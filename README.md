@@ -1,2 +1,2 @@
 # Contracts
-Ethereum contracts source code
+Ethereum contracts source code for PreITO and ITO
