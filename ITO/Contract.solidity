@@ -72,7 +72,6 @@ contract GMPToken is Ownable, ERC20Interface {
   string public constant symbol = "GMP";
   uint public constant decimals = 0;
   uint256 public constant initialSupply = 250000000;
-  bool public lockTransfers = false;
   uint256 public totalSupply;
 
   /* This creates an array with all balances */
