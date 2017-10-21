@@ -66,9 +66,11 @@ contract ERC20Interface {
 contract GMPToken is Ownable, ERC20Interface {
 
   /* Public variables of the token */
-  string public name;
-  string public symbol;
-  uint8 public decimals;
+  string public constant name = "GMP Token";
+  string public constant symbol = "GMP";
+  uint public constant decimals = 0;
+  uint256 public constant initialSupply = 250000000;
+  bool public lockTransfers = false;
   uint256 public totalSupply;
 
   /* This creates an array with all balances */
@@ -80,17 +82,9 @@ contract GMPToken is Ownable, ERC20Interface {
   event Mint(address indexed to, uint256 amount);
 
   /* Constuctor: Initializes contract with initial supply tokens to the creator of the contract */
-  function GMPToken(
-        uint256 initialSupply,
-        string tokenName,
-        uint8 decimalUnits,
-        string tokenSymbol
-      ) {
+  function GMPToken() {
       balances[msg.sender] = initialSupply;              // Give the creator all initial tokens
       totalSupply = initialSupply;                        // Update total supply
-      name = tokenName;                                   // Set the name for display purposes
-      symbol = tokenSymbol;                               // Set the symbol for display purposes
-      decimals = decimalUnits;                            // Amount of decimals for display purposes
   }
 
   function name() public constant returns (string) { return name; }
@@ -136,19 +130,20 @@ contract GMPToken is Ownable, ERC20Interface {
     return allowed[_owner][_spender];
   }
 
-  function mintToken(uint256 mintedAmount) onlyOwner {
-      balances[Ownable.owner] = add(balances[Ownable.owner], mintedAmount);
-      totalSupply = add(totalSupply, mintedAmount);
-      Mint(Ownable.owner, mintedAmount);
+  function mintToken(uint256 _mintedAmount) onlyOwner {
+    balances[Ownable.owner] = add(balances[Ownable.owner], _mintedAmount);
+    totalSupply = add(totalSupply, _mintedAmount);
+    Mint(Ownable.owner, _mintedAmount);
   }
 
-  function burnToken(uint256 _value) onlyOwner {
+  //For refund only
+  function burnToken(address _burner, uint256 _value) onlyOwner {
     require(_value > 0);
-    require(_value <= balances[Ownable.owner]);
-    address burner = msg.sender;
-    balances[Ownable.owner] = sub(balances[Ownable.owner], _value);
+    require(_value <= balances[_burner]);
+
+    balances[_burner] = sub(balances[_burner], _value);
     totalSupply = sub(totalSupply, _value);
-    Burn(Ownable.owner, _value);
+    Burn(_burner, _value);
   }
 
 
@@ -186,16 +181,16 @@ contract Crowdsale is Ownable {
 
   /* -----------   A D M I N        F U N C T I O N S    ----------- */
 
-  function Crowdsale(uint256 initialRate, address targetWallet, uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol) {
+  function Crowdsale(uint256 _initialRate, address _targetWallet) {
 
     //Checks
-    require(initialRate > 0);
-    require(targetWallet != 0x0);
+    require(_initialRate > 0);
+    require(_targetWallet != 0x0);
 
     //Init
-    token = new GMPToken(initialSupply, tokenName, decimalUnits, tokenSymbol);
-    rate = initialRate;
-    wallet = targetWallet;
+    token = new GMPToken();
+    rate = _initialRate;
+    wallet = _targetWallet;
     saleIsActive = true;
 
   }
@@ -205,8 +200,8 @@ contract Crowdsale is Ownable {
   }
 
   //Transfer token to
-  function transferToAddress(address targetWallet, uint256 tokenAmount) onlyOwner {
-    token.transfer(targetWallet, tokenAmount);
+  function transferToAddress(address _targetWallet, uint256 _tokenAmount) onlyOwner {
+    token.transfer(_targetWallet, _tokenAmount);
   }
 
 
@@ -219,13 +214,13 @@ contract Crowdsale is Ownable {
     saleIsActive = false;
   }
 
-  function setRate(uint256 newRate)  onlyOwner {
-    rate = newRate;
+  function setRate(uint256 _newRate)  onlyOwner {
+    rate = _newRate;
   }
 
   //Mint new tokens
-  function mintToken(uint256 mintedAmount) onlyOwner {
-    token.mintToken(mintedAmount);
+  function mintToken(uint256 _mintedAmount) onlyOwner {
+    token.mintToken(_mintedAmount);
   }
 
 
