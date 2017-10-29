@@ -68,10 +68,10 @@ contract GMPToken is Ownable, ERC20Interface {
   using SafeMath for uint256;
 
   /* Public variables of the token */
-  string public constant name = "GMP Token";
+  string public constant name = "GMP Coin";
   string public constant symbol = "GMP";
   uint public constant decimals = 0;
-  uint256 public constant initialSupply = 250000000;
+  uint256 public constant initialSupply = 220000000;
   uint256 public totalSupply;
 
   /* This creates an array with all balances */
