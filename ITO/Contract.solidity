@@ -98,7 +98,7 @@ contract GMPToken is Ownable, ERC20Interface {
   /* Internal transfer, only can be called by this contract */
   function _transfer(address _from, address _to, uint _amount) internal {
       require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead
-      require (balances[_from] > _amount);                // Check if the sender has enough
+      require (balances[_from] >= _amount);                // Check if the sender has enough
       balances[_from] = balances[_from].sub(_amount);
       balances[_to] = balances[_to].add(_amount);
       Transfer(_from, _to, _amount);
@@ -111,7 +111,7 @@ contract GMPToken is Ownable, ERC20Interface {
   }
 
   function transferFrom(address _from, address _to, uint256 _value) returns (bool) {
-    require (_value < allowed[_from][msg.sender]);     // Check allowance
+    require (_value <= allowed[_from][msg.sender]);     // Check allowance
     allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
     _transfer(_from, _to, _value);
     return true;
@@ -228,7 +228,7 @@ contract Crowdsale is Ownable {
 
     require(msg.sender != 0x0);
     require(saleIsActive);
-    require(msg.value > 0.01 * 1 ether);
+    require(msg.value >= 0.01 * 1 ether);
 
     uint256 weiAmount = msg.value;
 
